@@ -41,8 +41,28 @@ def obdelaj_sliko(slika, okno_sirina, okno_visina, barva_koze_spodaj, barva_koze
     # Nastavi (korak) na 20% širine in višine
     visina = int(okno_visina * 0.2)
     sirina = int(okno_sirina * 0.2)
+    # Za okvirčke od začetka do konca, po koraku 20% širine in višine
     for y in range(0, int(okno_visina), visina):
         for x in range(0, int(okno_sirina), sirina):
+            # Izreži trenutno okno
+            okno = slika[y:y + visina, x:x + sirina]
+            top_left = (x, y)
+            bottom_right = (x + sirina, y + visina)
+            # Dobi trenutno število pikslov, ki se ujemajo
+            trenutno_ujemanje = prestej_piksle_z_barvo_koze(okno, barva_koze_spodaj, barva_koze_zgoraj)
+            # Preveri ali si prvič v zanki in nato shrani v najboljše ujemanje prvi okvirček
+            if najboljse_ujemanje == -1:
+                najboljse_ujemanje = trenutno_ujemanje
+                najboljse_tl = top_left
+                najboljse_br = bottom_right
+            # Če je trenutno ujemanje boljše od najboljšega do zdaj
+            elif trenutno_ujemanje > najboljse_ujemanje:
+                najboljse_ujemanje = trenutno_ujemanje
+                najboljse_tl = top_left
+                najboljse_br = bottom_right
+    # Za okvirčke od 10% do 90%, po koraku 20% širine in višine
+    for y in range(int(visina / 2), int(okno_visina - visina / 2), visina):
+        for x in range(int(sirina / 2), int(okno_sirina - visina / 2), sirina):
             # Izreži trenutno okno
             okno = slika[y:y + visina, x:x + sirina]
             top_left = (x, y)
