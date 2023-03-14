@@ -1,13 +1,11 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
-import tkinter as tk
 import time
 
 
 def zmanjsaj_sliko(slika):
     # Vrni zmanjšano sliko
-    return cv2.resize(slika, (300, 260))
+    return cv2.resize(slika, (260, 300))
 
 
 def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
@@ -18,7 +16,10 @@ def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
     std_dev = np.int_(np.std(roi_image))
     return avg_color - std_dev, avg_color + std_dev
 
+
 def prestej_piksle_z_barvo_koze(podslika, barva_koze_spodaj, barva_koze_zgoraj):
+    # Stara rešitev (počasno O(N*N))
+    '''
     width, height, channel = np.int_(podslika.shape)
     count = 0
     for row in range(podslika.shape[0]):
@@ -28,6 +29,12 @@ def prestej_piksle_z_barvo_koze(podslika, barva_koze_spodaj, barva_koze_zgoraj):
                 count += 1
                 # print("count: ", count)
     return count
+    '''
+    # Ustvari bool masko glede na pogoje, ki padejo v podan rang in nato tiste, ki padejo seštej
+    mask = np.logical_and(barva_koze_spodaj <= podslika, podslika <= barva_koze_zgoraj)
+    count = np.sum(mask)
+    return count
+
 
 def obdelaj_sliko(slika, okno_sirina, okno_visina, barva_koze_spodaj, barva_koze_zgoraj):
     najboljse_ujemanje = -1
@@ -62,13 +69,11 @@ time.sleep(1)
 _, frame = cap.read()
 frame = cv2.flip(frame, 1)
 frame = zmanjsaj_sliko(frame)
-# Zberi ROI od levega kota zgoraj do desnega kota spodaj
+# Zberi ROI od levega kota zgoraj do desnega kota spodaj in določi levo zgoraj in desno spodaj koordinate
 roi = cv2.selectROI(frame, fromCenter=False)
-#roi_image = frame[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
-#print("ROI: ", (roi[0], roi[1]), (roi[2], roi[3]))
-# Določi barvo kože, ki predstavlja obraz, ki ga iščemo
 levo_zgoraj = (roi[0], roi[1])
 desno_spodaj = (roi[2], roi[3])
+# Določi barvo kože, ki predstavlja obraz, ki ga iščemo
 bk_spodaj, bk_zgoraj = doloci_barvo_koze(frame, levo_zgoraj, desno_spodaj)
 # Zapri vsa okna in začni nov capture
 cv2.destroyAllWindows()
@@ -81,13 +86,12 @@ while True:
     frame = cv2.flip(frame, 1)
     # Zmanjšaj sliko
     frame = zmanjsaj_sliko(frame)
-    # Pridobi visino in sirino okna (slike)
+    # Pridobi višino in širino okna (slike)
     visina, sirina, channel = np.int_(frame.shape)
-    # Obdelaj sliko in shrani levi zgornji kot in desni spodnji kot regije, ki se najbolše ujema z izbranim
+    # Obdelaj sliko in shrani levi zgornji kot in desni spodnji kot regije, ki se najboljše ujema z izbranim
     topleft, bottomright = obdelaj_sliko(frame, sirina, visina, bk_spodaj, bk_zgoraj)
-    # Nariši okvir na to regijo
+    # Nariši okvir na to regijo in prikaži frame + okvir
     cv2.rectangle(frame, topleft, bottomright, (0, 255, 0), 2)
-    # Prikaži frame + okvir na regiji
     cv2.imshow('Kamera', frame)
 
     # Pritisni 'q' za izhod
