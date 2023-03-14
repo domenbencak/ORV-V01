@@ -5,7 +5,7 @@ import time
 
 def zmanjsaj_sliko(slika):
     # Vrni zmanjšano sliko
-    return cv2.resize(slika, (260, 300))
+    return cv2.resize(slika, (720, 480))
 
 
 def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
@@ -39,8 +39,8 @@ def prestej_piksle_z_barvo_koze(podslika, barva_koze_spodaj, barva_koze_zgoraj):
 def obdelaj_sliko(slika, okno_sirina, okno_visina, barva_koze_spodaj, barva_koze_zgoraj):
     najboljse_ujemanje = -1
     # Nastavi (korak) na 20% širine in višine
-    visina = int(okno_visina * 0.2)
-    sirina = int(okno_sirina * 0.2)
+    visina = int(okno_visina * 0.25)
+    sirina = int(okno_sirina * 0.1)
     for y in range(0, int(okno_visina), visina):
         for x in range(0, int(okno_sirina), sirina):
             # Izreži trenutno okno
