@@ -95,7 +95,7 @@ _, frame = cap.read()
 frame = cv2.flip(frame, 1)
 frame = zmanjsaj_sliko(frame)
 # Zberi ROI od levega kota zgoraj do desnega kota spodaj in določi levo zgoraj in desno spodaj koordinate
-roi = cv2.selectROI(frame, fromCenter=False)
+roi = cv2.selectROI("Izberi predmet za sledenje", frame, fromCenter=False, showCrosshair=False)
 levo_zgoraj = (roi[0], roi[1])
 desno_spodaj = (roi[2], roi[3])
 # Določi barvo kože, ki predstavlja obraz, ki ga iščemo
@@ -116,7 +116,7 @@ while True:
     # Obdelaj sliko in shrani levi zgornji kot in desni spodnji kot regije, ki se najboljše ujema z izbranim
     topleft, bottomright = obdelaj_sliko(frame, sirina, visina, bk_spodaj, bk_zgoraj)
     # Nariši okvir na to regijo in prikaži frame + okvir
-    cv2.rectangle(frame, topleft, bottomright, (0, 255, 0), 2)
+    cv2.rectangle(frame, topleft, bottomright, (255, 255, 62), 2)
     cv2.imshow('Kamera', frame)
 
     # Pritisni 'q' za izhod
