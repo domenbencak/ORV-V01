@@ -29,6 +29,32 @@ def prestej_piksle_z_barvo_koze(podslika, barva_koze_spodaj, barva_koze_zgoraj):
                 # print("count: ", count)
     return count
 
+def obdelaj_sliko(slika, okno_sirina, okno_visina, barva_koze_spodaj, barva_koze_zgoraj):
+    najboljse_ujemanje = -1
+    # Nastavi (korak) na 20% širine in višine
+    visina = int(okno_visina * 0.2)
+    sirina = int(okno_sirina * 0.2)
+    for y in range(0, int(okno_visina), visina):
+        for x in range(0, int(okno_sirina), sirina):
+            # Izreži trenutno okno
+            okno = slika[y:y + visina, x:x + sirina]
+            top_left = (x, y)
+            bottom_right = (x + sirina, y + visina)
+            # Dobi trenutno število pikslov, ki se ujemajo
+            trenutno_ujemanje = prestej_piksle_z_barvo_koze(okno, barva_koze_spodaj, barva_koze_zgoraj)
+            # Preveri ali si prvič v zanki in nato shrani v najboljše ujemanje prvi okvirček
+            if najboljse_ujemanje == -1:
+                najboljse_ujemanje = trenutno_ujemanje
+                najboljse_tl = top_left
+                najboljse_br = bottom_right
+            # Če je trenutno ujemanje boljše od najboljšega do zdaj
+            elif trenutno_ujemanje > najboljse_ujemanje:
+                najboljse_ujemanje = trenutno_ujemanje
+                najboljse_tl = top_left
+                najboljse_br = bottom_right
+
+    return (najboljse_tl, najboljse_br)
+
 
 # Začni zajemanje videa, počakaj 1 sekundo (da senzor dobi dovolj svetlobe) nato zajemi prvi frame
 cap = cv2.VideoCapture(0)
@@ -38,19 +64,29 @@ frame = cv2.flip(frame, 1)
 frame = zmanjsaj_sliko(frame)
 # Zberi ROI od levega kota zgoraj do desnega kota spodaj
 roi = cv2.selectROI(frame, fromCenter=False)
+#roi_image = frame[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
+#print("ROI: ", (roi[0], roi[1]), (roi[2], roi[3]))
+# Določi barvo kože, ki predstavlja obraz, ki ga iščemo
 levo_zgoraj = (roi[0], roi[1])
 desno_spodaj = (roi[2], roi[3])
 bk_spodaj, bk_zgoraj = doloci_barvo_koze(frame, levo_zgoraj, desno_spodaj)
-print("s, z: ", bk_spodaj, bk_zgoraj)
+# Zapri vsa okna in začni nov capture
 cv2.destroyAllWindows()
 cap = cv2.VideoCapture(0)
 
 while True:
     # Preberi frame iz kamere
     ret, frame = cap.read()
-    frame = zmanjsaj_sliko(frame)
     # Obrni frame
     frame = cv2.flip(frame, 1)
+    # Zmanjšaj sliko
+    frame = zmanjsaj_sliko(frame)
+    # Pridobi visino in sirino okna (slike)
+    visina, sirina, channel = np.int_(frame.shape)
+    # Obdelaj sliko in shrani levi zgornji kot in desni spodnji kot regije, ki se najbolše ujema z izbranim
+    topleft, bottomright = obdelaj_sliko(frame, sirina, visina, bk_spodaj, bk_zgoraj)
+    # Nariši okvir na to regijo
+    cv2.rectangle(frame, topleft, bottomright, (0, 255, 0), 2)
     # Prikaži frame + okvir na regiji
     cv2.imshow('Kamera', frame)
 
