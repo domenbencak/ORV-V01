@@ -15,6 +15,18 @@ def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
     std_dev = np.int_(np.std(roi_image))
     return avg_color - std_dev, avg_color + std_dev
 
+def prestej_piksle_z_barvo_koze(podslika, barva_koze_spodaj, barva_koze_zgoraj):
+    def prestej_piksle_z_barvo_koze(podslika, barva_koze_spodaj, barva_koze_zgoraj):
+        width, height, channel = np.int_(podslika.shape)
+        count = 0
+        for row in range(podslika.shape[0]):
+            for col in range(podslika.shape[1]):
+                pixel = podslika[row, col]
+                if (barva_koze_spodaj <= pixel).all() and (pixel <= barva_koze_zgoraj).all():
+                    count += 1
+                    # print("count: ", count)
+        return count
+
 # Začni zajemanje videa, počakaj 1 sekundo (da senzor dobi dovolj svetlobe) nato zajemi prvi frame
 cap = cv2.VideoCapture(0)
 time.sleep(1)
