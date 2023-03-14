@@ -4,28 +4,31 @@ import matplotlib.pyplot as plt
 import tkinter as tk
 import time
 
+
 def zmanjsaj_sliko(slika):
     # Vrni zmanjšano sliko
     return cv2.resize(slika, (300, 260))
 
+
 def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
     # Določi povprečje in standardno deviacijo pikslov izbrane regije na sliki
-    roi_image = slika[int(levo_zgoraj[1]):int(levo_zgoraj[1] + desno_spodaj[1]), int(levo_zgoraj[0]):int(levo_zgoraj[0] + desno_spodaj[0])]
+    roi_image = slika[int(levo_zgoraj[1]):int(levo_zgoraj[1] + desno_spodaj[1]),
+                int(levo_zgoraj[0]):int(levo_zgoraj[0] + desno_spodaj[0])]
     avg_color = np.int_(np.average(roi_image, axis=(0, 1)))
     std_dev = np.int_(np.std(roi_image))
     return avg_color - std_dev, avg_color + std_dev
 
 def prestej_piksle_z_barvo_koze(podslika, barva_koze_spodaj, barva_koze_zgoraj):
-    def prestej_piksle_z_barvo_koze(podslika, barva_koze_spodaj, barva_koze_zgoraj):
-        width, height, channel = np.int_(podslika.shape)
-        count = 0
-        for row in range(podslika.shape[0]):
-            for col in range(podslika.shape[1]):
-                pixel = podslika[row, col]
-                if (barva_koze_spodaj <= pixel).all() and (pixel <= barva_koze_zgoraj).all():
-                    count += 1
-                    # print("count: ", count)
-        return count
+    width, height, channel = np.int_(podslika.shape)
+    count = 0
+    for row in range(podslika.shape[0]):
+        for col in range(podslika.shape[1]):
+            pixel = podslika[row, col]
+            if (barva_koze_spodaj <= pixel).all() and (pixel <= barva_koze_zgoraj).all():
+                count += 1
+                # print("count: ", count)
+    return count
+
 
 # Začni zajemanje videa, počakaj 1 sekundo (da senzor dobi dovolj svetlobe) nato zajemi prvi frame
 cap = cv2.VideoCapture(0)
